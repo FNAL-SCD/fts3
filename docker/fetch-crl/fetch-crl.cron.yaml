@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: fetch-crl-cron
+spec:
+  schedule: "0 */3 * * *"
+  ConcurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+
+
+          containers:
+          - name: fetch-crl
+            image: holzman/fetch-crl
+            command: ["/bin/sh", "-c"]
+            args: ["osg-ca-manage setupca --location root --url osg --verbose ; fetch-crl --verbose"]
+            volumeMounts:
+            - mountPath: /sys/fs/cgroup
+              name: fetch-crl-1
+            - mountPath: /etc/grid-security
+              name: grid-security
+
+          volumes:
+          - name: fetch-crl-1
+            emptyDir: {}
+          - name: grid-security
+            persistentVolumeClaim:
+                claimName: grid-security
+
+    
