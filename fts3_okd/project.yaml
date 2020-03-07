@@ -1,0 +1,197 @@
+apiVersion: v1
+items:
+
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: ftscontainers
+    name: ftscontainers
+  spec:
+    replicas: 1
+    selector:
+      app: ftscontainers
+      deploymentconfig: ftscontainers
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: ftscontainers
+          deploymentconfig: ftscontainers
+      spec:
+        initContainers:
+        - name: fetch-crls-first-time
+          image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:1.0
+          command: ['bash', '-c', 'find /etc/grid-security/certificates/ -mindepth 1 | read || (osg-ca-manage setupca --location root --url osg --verbose ; fetch-crl --verbose)']
+          volumeMounts:
+          - mountPath: /etc/grid-security
+            name: grid-security-external
+        - name: wait-for-fts3db
+          image: busybox
+          command: ['sh', '-c', 'until nslookup fts3db; do echo waiting for fts3db; sleep 2; done;']
+        containers:
+        - env:
+          - name: FTS3DB_PASS
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: fts3db
+          - name: FTS3DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: fts3db
+          - name: WEB_INTERFACE
+            value: fts3-dev.fnal.gov
+          - name: DATABASE_UPGRADE
+            value: "yes"
+          image: imageregistry.fnal.gov:443/sds/fts_containers:1.0
+          imagePullPolicy: Always
+          name: ftscontainers
+          ports:
+          - containerPort: 8446
+            protocol: TCP
+          - containerPort: 8449
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /sys/fs/cgroup
+            name: ftscontainers-volume-1
+          - mountPath: /tmp/fts3-configs
+            name: volume-6pk0d
+            readOnly: true
+          - mountPath: /tmp/fts3-host-pems
+            name: volume-0iqzh
+            readOnly: true
+          - mountPath: /etc/grid-security-external
+            name: grid-security-external
+            readOnly: true
+        restartPolicy: Always
+
+        volumes:
+        - emptyDir: {}
+          name: ftscontainers-volume-1
+        - name: volume-6pk0d
+          secret:
+            defaultMode: 420
+            secretName: fts3-configs
+        - name: volume-0iqzh
+          secret:
+            defaultMode: 420
+            secretName: fts3-host-pems
+        - name: grid-security-external
+          persistentVolumeClaim:
+            claimName: grid-security
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ftscontainers
+        from:
+          kind: ImageStreamTag
+          name: ftscontainers:1.0
+      type: ImageChange
+    replicas: 1
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      template: mariadb-persistent-template
+      template.openshift.io/template-instance-owner: faede60e-493c-11ea-be11-0025905c2aee
+    name: fts3db
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      name: fts3db
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: fts3db
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: fts3db
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: fts3db
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: database-root-password
+                name: fts3db
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: database-name
+                name: fts3db
+          image: docker-registry.default.svc:5000/openshift/mariadb@sha256:a9638af8f6d6f507c92160a4488f1025bb8697eba913f3de026c36e2baccb92d
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 3306
+            timeoutSeconds: 1
+          name: mariadb
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
+                -e 'SELECT 1'
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/mysql/data
+            name: fts3db-data
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: fts3db-data
+          persistentVolumeClaim:
+            claimName: fts3db
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - mariadb
+        from:
+          kind: ImageStreamTag
+          name: mariadb:10.2
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
