@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fetch-crl-cron-once
+spec:
+  parallelism: 1    
+  completions: 1    
+  template:         
+    metadata:
+      name: pi
+    spec:
+      containers:
+      - name: fetch-crl-cron-once
+        args:
+        - osg-ca-manage setupca --location root --url osg --verbose ; fetch-crl
+          --verbose
+        command:
+        - /bin/sh
+        - -c
+        image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:1.0
+        volumeMounts:
+        - mountPath: /sys/fs/cgroup
+          name: fetch-crl-1
+        - mountPath: /etc/grid-security
+          name: grid-security
+      volumes:
+      - emptyDir: {}
+        name: fetch-crl-1
+      - name: grid-security
+        persistentVolumeClaim:
+          claimName: grid-security
+      restartPolicy: OnFailure    
