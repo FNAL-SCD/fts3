@@ -47,7 +47,7 @@ HttpKeepAlive=true
 CleanRecordsHost=true
 
 #List of AuthorizedVO
-AuthorizedVO=cms;dune;fermilab;ops;osg
+AuthorizedVO=*
 
 #To enable MyOSG comment in the following line and uncomment the next one 
 MyOSG=false
