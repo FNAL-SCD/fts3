@@ -34,5 +34,6 @@ fi
 fetch-crl
 fts_server
 fts_bringonline
+fts_msg_bulk
 httpd
 supervisord -c /etc/supervisord.conf
