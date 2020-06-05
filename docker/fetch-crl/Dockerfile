@@ -1,10 +1,10 @@
 FROM centos/systemd:latest
 
-LABEL version="0.1"
+LABEL version="0.2"
 LABEL description="Container to update CRLs and certificates"
 
 RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-RUN rpm -Uvh https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-release-latest.rpm
+RUN rpm -Uvh https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm
 RUN yum -y install yum-plugin-priorities
 
 RUN yum -y install osg-ca-scripts fetch-crl

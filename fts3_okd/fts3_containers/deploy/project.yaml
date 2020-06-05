@@ -22,7 +22,7 @@ items:
       spec:
         initContainers:
         - name: fetch-crls-first-time
-          image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:1.0
+          image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:latest
           command: ['bash', '-c', 'find /etc/grid-security/certificates/ -mindepth 1 | read || (osg-ca-manage setupca --location root --url osg --verbose ; fetch-crl --verbose)']
           volumeMounts:
           - mountPath: /etc/grid-security
@@ -46,7 +46,7 @@ items:
             value: fts3-dev.fnal.gov
           - name: DATABASE_UPGRADE
             value: "yes"
-          image: imageregistry.fnal.gov:443/sds/fts_containers:1.0
+          image: imageregistry.fnal.gov:443/sds/fts_containers:latest
           imagePullPolicy: Always
           name: ftscontainers
           ports:
@@ -90,7 +90,7 @@ items:
         - ftscontainers
         from:
           kind: ImageStreamTag
-          name: ftscontainers:1.0
+          name: fts3:latest
       type: ImageChange
     replicas: 1
 - apiVersion: apps.openshift.io/v1

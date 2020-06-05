@@ -1,0 +1,47 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: fts3physicaldb
+  spec:
+    ports:
+    - name: mariadb
+      port: 3314
+      protocol: TCP
+      targetPort: 3314
+    selector:
+      name: fts3physicaldb
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ftscontainers
+    name: ftscontainers
+  spec:
+    externalIPs:
+    - 131.225.218.130
+    ports:
+    - name: port-1
+      port: 8446
+      protocol: TCP
+      targetPort: 8446
+    - name: port-2
+      port: 8449
+      protocol: TCP
+      targetPort: 8449
+    selector:
+      app: ftscontainers
+      deploymentconfig: ftscontainers
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

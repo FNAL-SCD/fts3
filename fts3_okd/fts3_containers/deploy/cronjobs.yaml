@@ -22,7 +22,7 @@ items:
               command:
               - /bin/sh
               - -c
-              image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:1.0
+              image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:latest
               imagePullPolicy: Always
               name: fetch-crl
               resources: {}
