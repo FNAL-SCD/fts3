@@ -16,6 +16,7 @@ items:
           metadata:
             creationTimestamp: null
           spec:
+          - args:
             containers:
               image: imageregistry.fnal.gov:443/sds/fetch-crl:latest
               imagePullPolicy: Always
