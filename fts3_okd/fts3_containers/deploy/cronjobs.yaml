@@ -16,12 +16,6 @@ items:
             creationTimestamp: null
           spec:
             containers:
-            - args:
-              - osg-ca-manage setupca --location root --url osg --verbose ; fetch-crl
-                --verbose
-              command:
-              - /bin/sh
-              - -c
               image: imageregistry.fnal.gov:443/sds/fts_fetch-crl:latest
               imagePullPolicy: Always
               name: fetch-crl
