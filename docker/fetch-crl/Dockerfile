@@ -1,6 +1,7 @@
-FROM centos/systemd:latest
+# Using scientific Linux as base
+FROM scientificlinux/sl:7
 
-LABEL version="0.3"
+LABEL version="0.4"
 LABEL description="Container to update CRLs and certificates"
 
 # Installing EPEL and OSG repositories and setting EPEL priority to 99
@@ -10,11 +11,13 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.r
     /bin/sed -i '/^enabled=1/a priority=99' /etc/yum.repos.d/epel.repo
 
 # Installing the packages that we need
-RUN yum -y install osg-ca-scripts fetch-crl;\
+RUN yum install -y vim less rsync fetch-crl osg-ca-scripts; \
     yum clean all
 
 # Managing directory permissions
-RUN chmod -R g+w /etc/osg /var/lib/osg-ca-certs /etc/grid-security
+RUN chmod -R g+w /etc/osg; \
+    chmod -R g+w /var/lib/osg-ca-certs; \
+    chmod -R g+w  /etc/grid-security
 
 # Add CA certificates manager entrypoint script
 ADD ca-manager.sh /usr/local/bin/
