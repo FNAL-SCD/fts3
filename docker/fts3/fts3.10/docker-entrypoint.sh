@@ -16,6 +16,8 @@ chown root:root /etc/grid-security/hostkey.pem
 cp /tmp/fts3-configs/ca.crt /etc/grid-security/certificates/docker-entrypoint_ca.crt
 cp /tmp/fts3-configs/fts3config /etc/fts3/fts3config
 cp /tmp/fts3-configs/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
+chown root:apache /etc/fts3web/fts3web.ini
+chown -R fts3:fts3 /var/log/fts3rest
 
 if [[ ! -z "${DATABASE_UPGRADE}" ]]; then
    yes Y | python /usr/share/fts/fts-database-upgrade.py
