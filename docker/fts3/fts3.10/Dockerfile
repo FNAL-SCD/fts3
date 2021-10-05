@@ -1,4 +1,4 @@
-FROM slateci/fts3:3.10.1
+FROM slateci/fts3:3.10
 RUN yum -y install mariadb
 EXPOSE 8446 8449
 
