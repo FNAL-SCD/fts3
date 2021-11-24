@@ -1,13 +1,13 @@
 # Using scientific Linux as base
-FROM scientificlinux/sl:7
+FROM centos:7
 
-LABEL version="0.4"
+LABEL version="0.6"
 LABEL description="Container to update CRLs and certificates"
 
 # Installing EPEL and OSG repositories and setting EPEL priority to 99
 # OSG is at 98 by default
-RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;\
-    rpm -Uvh https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm ;\
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;\
+    rpm -Uvh https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el7-release-latest.rpm;\
     /bin/sed -i '/^enabled=1/a priority=99' /etc/yum.repos.d/epel.repo
 
 # Installing the packages that we need
