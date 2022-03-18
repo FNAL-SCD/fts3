@@ -65,9 +65,10 @@ items:
             readOnly: true
           - mountPath: /etc/grid-security-external
             name: grid-security-external
-            readOnly: true
         restartPolicy: Always
-
+        serviceAccount: useroot
+        serviceAccountName: useroot
+        
         volumes:
         - emptyDir: {}
           name: ftscontainers-volume-1
