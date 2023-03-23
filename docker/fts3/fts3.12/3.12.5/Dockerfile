@@ -1,4 +1,4 @@
-ROM hub.opensciencegrid.org/slate/fts-server:3.12.5
+FROM hub.opensciencegrid.org/slate/fts-server:3.12.5
 RUN yum -y install mariadb
 EXPOSE 8446 8449
 
