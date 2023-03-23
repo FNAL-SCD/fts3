@@ -1,0 +1,126 @@
+# Database type (mysql only)
+DbType = mysql
+
+# Database username
+DbUserName = replacethis
+
+# Database password
+DbPassword = replacethis
+
+# For MySQL, it has to follow the format 'host/db' (i.e. "mysql-server.example.com/fts3db")
+DbConnectString = replacethis
+
+# List of authorized VOs (separated by ;)
+# Leave * to authorize any VO
+AuthorizedVO = *
+
+# The alias used for the FTS endpoint
+# Note: will be published in the FTS Transfers Dashboard
+Alias = fts3-public.fnal.gov
+
+# Site name running the FTS3 service
+SiteName = FNAL Public FTS3
+
+# Inform the REST component whether the Optimizer service is running
+Optimizer = True
+
+# Enable or disable monitoring messages (see fts-msg-monitoring.conf) (default false)
+MonitoringMessaging = False
+# Enable or disable publishing of user DNs (recommended false)
+MonitoringPublishDN = False
+
+# Directory where the internal FTS3 messages are written
+#MessagingDirectory = /var/lib/fts3
+
+# Interval between heartbeats (measured in seconds)
+# Note: be aware of the FTS3 Server HeartBeatGraceInterval
+HeartBeatInterval = 60
+
+# Time delta between bringonline timeout and expiration timeout
+# Value must be set with a suffix: s (seconds), m (minutes), h (hours), d (days)
+# No enforcement if config setting is missing
+#BringOnlineAndExpirationDelta = 3d
+
+# Minimum amount of files required in a SessionReuse job
+#SessionReuseMinFiles = 5
+
+# Enable or disable AutoSessionReuse (default false)
+AutoSessionReuse = False
+# Max number of files per session reuse
+AutoSessionReuseMaxFiles = 1000
+# Max small file size for session reuse in bytes (default 100MB)
+AutoSessionReuseMaxSmallFileSize = 104857600
+# Max big file size for session reuse in bytes (default 1GB)
+AutoSessionReuseMaxBigFileSize = 1073741824
+# Max number of big files per session reuse
+AutoSessionReuseMaxBigFiles = 2
+
+# OAuth2 parameters
+ValidateAccessTokenOffline=True
+JWKCacheSeconds=86400
+TokenRefreshDaemonIntervalInSeconds=600
+
+#[providers]
+#provider1 = https://wlcg.cloud.cnaf.infn.it
+#provider_ClientId = <client-id>
+#provider_ClientSecret = <client-secret>
+
+# Authorization roles
+# Detailed roles syntax is explained in the FTS3 documentation (Installation Guide/FTS3)
+[roles]
+Public = vo:transfer;all:datamanagement
+production = all:config
+
+[sqlalchemy]
+pool_timeout = 10
+pool_size = 10
+
+# Logging configuration
+[loggers]
+keys = root, routes, fts3rest, sqlalchemy
+
+[handlers]
+keys = console, log_file
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = INFO
+handlers = log_file
+
+[logger_routes]
+level = INFO
+handlers =
+qualname = routes.middleware
+# "level = DEBUG" logs the route matched and routing variables.
+
+[logger_fts3rest]
+level = INFO
+handlers =
+qualname = fts3rest
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+# "level = INFO" logs SQL queries.
+# "level = DEBUG" logs SQL queries and results.
+# "level = WARN" logs neither.  (Recommended for production systems.)
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[handler_log_file]
+class = logging.FileHandler
+args = ('/var/log/fts3rest/fts3rest.log', 'a')
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(module)s] %(message)s
+datefmt = %H:%M:%S
+
