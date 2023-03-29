@@ -1,4 +1,4 @@
-!/bin/bash -e
+#!/bin/bash -e
 
 if ! whoami &> /dev/null; then
   if [ -w /etc/passwd ]; then
