@@ -1,0 +1,4 @@
+# Ignore everything but the Containerfile and /files.
+*
+!Containerfile
+!files/
