@@ -1,18 +1,22 @@
-# Using scientific Linux as base
-FROM centos:7
+# Using almalinux base image
+FROM almalinux:9.4
 
 LABEL version="0.6"
 LABEL description="Container to update CRLs and certificates"
 
-# Installing EPEL and OSG repositories and setting EPEL priority to 99
-# OSG is at 98 by default
-RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm ;\
-    rpm -Uvh https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el7-release-latest.rpm;\
-    /bin/sed -i '/^enabled=1/a priority=99' /etc/yum.repos.d/epel.repo
+# Installing EPEL and OSG repositories
+RUN sed -i '1,/enabled=0/ s/enabled=0/enabled=1/' /etc/yum.repos.d/almalinux-crb.repo 
+RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
+RUN dnf install -y epel-release
+RUN dnf update -y
 
 # Installing the packages that we need
-RUN yum install -y vim less rsync fetch-crl osg-ca-scripts; \
-    yum clean all
+RUN dnf install -y vim 
+RUN dnf install -y less 
+RUN dnf install -y rsync 
+RUN dnf install -y fetch-crl 
+RUN dnf install -y osg-ca-scripts
+RUN dnf clean all
 
 # Managing directory permissions
 RUN chmod -R g+w /etc/osg; \
