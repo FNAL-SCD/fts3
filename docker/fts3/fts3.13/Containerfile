@@ -102,9 +102,3 @@ COPY docker-entrypoint.sh /tmp/docker-entrypoint.sh
 COPY supervisord.conf /etc/supervisord.conf
 RUN chmod +x /tmp/docker-entrypoint.sh
 ENTRYPOINT ["/tmp/docker-entrypoint.sh"]
-
-#! This crt and key does not exists (slate had it in it's image?)
-#!!!! Update: I copied these from previous SL7 image...
-COPY files/etc/pki/ /etc/pki
-RUN chmod 660 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
-
