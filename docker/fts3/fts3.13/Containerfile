@@ -29,7 +29,7 @@ COPY files/20-fts-config.sh /etc/osg/image-config.d/
 #> Install the FTS packages and dependencies
 RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
 RUN dnf install -y gfal2-plugin-mock gfal2-all
-RUN dnf install -y osg-ca-certs cronie crontabs supervisor fetch-crl
+RUN dnf install -y cronie crontabs supervisor fetch-crl
 RUN dnf install -y fts-server-${VERSION}
 RUN dnf install -y fts-rest-server-${VERSION}
 RUN dnf install -y fts-monitoring-${VERSION}
@@ -92,10 +92,6 @@ RUN chown fts3:root /var/log/fts3rest && chmod 644 /etc/fts3web/fts3web.ini
 
 #> Supervisord writes logs to cwd
 WORKDIR /var/log/supervisor
-
-#> Use certificates from external mount
-RUN rm -rf /etc/grid-security/certificates
-RUN ln -s /etc/grid-security-external/certificates /etc/grid-security/certificates
 
 #> Set the entrypoint to the provided supervisord starter
 COPY docker-entrypoint.sh /tmp/docker-entrypoint.sh
