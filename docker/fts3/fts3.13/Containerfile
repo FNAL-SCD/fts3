@@ -1,0 +1,110 @@
+#> Docker image build arguments:
+FROM almalinux:9.4
+# ARG VERSION=3.13.0-1.el9
+ARG VERSION=3.13.0
+
+#> Enable CRB repo
+COPY files/almalinux-crb.repo /etc/yum.repos.d/almalinux-crb.repo
+
+#> Update image
+RUN dnf update -y
+
+#> Install EL9 dependencies
+RUN dnf install -y epel-release wget
+
+#> Open Science Grid configurations?
+RUN mkdir -p /etc/osg/image-config.d/
+
+#> Add supported Alma9 repos
+# RUN wget -P /etc/yum.repos.d http://fts-repo.web.cern.ch/fts-repo/fts3-rc-el9.repo
+RUN wget -P /etc/yum.repos.d http://fts-repo.web.cern.ch/fts-repo/fts3-el9.repo
+RUN wget -P /etc/yum.repos.d http://fts-repo.web.cern.ch/fts-repo/fts3-depend.repo
+
+RUN dnf clean all
+
+#> Copy files in
+COPY files/10-fts.conf /etc/supervisor.d/
+COPY files/20-fts-config.sh /etc/osg/image-config.d/
+
+#> Install the FTS packages and dependencies
+RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
+RUN dnf install -y gfal2-plugin-mock gfal2-all
+RUN dnf install -y osg-ca-certs cronie crontabs supervisor fetch-crl
+RUN dnf install -y fts-server-${VERSION}
+RUN dnf install -y fts-rest-server-${VERSION}
+RUN dnf install -y fts-monitoring-${VERSION}
+RUN dnf install -y fts-mysql-${VERSION}
+RUN dnf install -y fts-server-selinux-${VERSION}
+RUN dnf install -y fts-rest-server-selinux-${VERSION}
+RUN dnf install -y fts-monitoring-selinux-${VERSION}
+RUN dnf install -y fts-msg-${VERSION}
+RUN dnf install -y vo-client 
+
+#> Install utils
+RUN dnf install -y procps
+RUN dnf install -y which
+
+#> Install MariaDB
+RUN dnf -y install mariadb
+EXPOSE 8446 8449
+
+
+#> Clean up
+RUN dnf clean all && \
+    rm -rf /var/cache/dnf
+
+
+#> Grant group write access
+RUN chmod -R 775 /etc/grid-security \
+    /etc/httpd /run/httpd /var/log/httpd \
+    /var/lib/fts3 /var/log/fts3 /var/lib/fts3 \
+    /var/log/fts3rest /usr/share/fts3web
+
+
+#> Grant group read access
+RUN chmod 664 /etc/fts3/*
+RUN chmod 775 /run /etc/fts3
+RUN chmod g=u /etc/passwd
+
+#> Change group from apache to root
+RUN chgrp -R root /run/httpd /etc/fts3web
+
+#> Don't listen on privileged ports
+RUN sed -i 's/Listen 80/#Listen 80/' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/Listen 443/#Listen 443/' /etc/httpd/conf.d/ssl.conf
+
+#> Remove TRACE and TRACK HTTP methods (403: Not Allowed)
+RUN echo "" >> /etc/httpd/conf/httpd.conf
+RUN echo "# Remove TRACE/TRACK HTTP Methods" >> /etc/httpd/conf/httpd.conf
+RUN echo "TraceEnable Off"  >> /etc/httpd/conf/httpd.conf
+RUN echo "RewriteEngine On" >> /etc/httpd/conf/httpd.conf
+RUN echo "RewriteOptions InheritDown" >> /etc/httpd/conf/httpd.conf
+RUN echo "RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> /etc/httpd/conf/httpd.conf
+RUN echo "RewriteRule .* - [F]" >> /etc/httpd/conf/httpd.conf
+
+#> Always append SAMEORIGIN
+RUN echo "" >> /etc/httpd/conf/httpd.conf
+RUN echo "# Always append SAMEORIGIN" >> /etc/httpd/conf/httpd.conf
+RUN echo "Header always append X-Frame-Options SAMEORIGIN" >> /etc/httpd/conf/httpd.conf
+
+#> Needed for pure k8s environment
+RUN chown fts3:root /var/log/fts3rest && chmod 644 /etc/fts3web/fts3web.ini
+
+#> Supervisord writes logs to cwd
+WORKDIR /var/log/supervisor
+
+#> Use certificates from external mount
+RUN rm -rf /etc/grid-security/certificates
+RUN ln -s /etc/grid-security-external/certificates /etc/grid-security/certificates
+
+#> Set the entrypoint to the provided supervisord starter
+COPY docker-entrypoint.sh /tmp/docker-entrypoint.sh
+COPY supervisord.conf /etc/supervisord.conf
+RUN chmod +x /tmp/docker-entrypoint.sh
+ENTRYPOINT ["/tmp/docker-entrypoint.sh"]
+
+#! This crt and key does not exists (slate had it in it's image?)
+#!!!! Update: I copied these from previous SL7 image...
+COPY files/etc/pki/ /etc/pki
+RUN chmod 660 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
+
