@@ -2,3 +2,5 @@
 *
 !Containerfile
 !files/
+!docker-entrypoint.sh
+!supervisord.conf
