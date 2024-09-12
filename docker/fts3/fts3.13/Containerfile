@@ -12,9 +12,6 @@ RUN dnf update -y
 #> Install EL9 dependencies
 RUN dnf install -y epel-release wget
 
-#> Open Science Grid configurations?
-RUN mkdir -p /etc/osg/image-config.d/
-
 #> Add supported Alma9 repos
 # RUN wget -P /etc/yum.repos.d http://fts-repo.web.cern.ch/fts-repo/fts3-rc-el9.repo
 RUN wget -P /etc/yum.repos.d http://fts-repo.web.cern.ch/fts-repo/fts3-el9.repo
@@ -24,7 +21,6 @@ RUN dnf clean all
 
 #> Copy files in
 COPY files/10-fts.conf /etc/supervisor.d/
-COPY files/20-fts-config.sh /etc/osg/image-config.d/
 
 #> Install the FTS packages and dependencies
 RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
