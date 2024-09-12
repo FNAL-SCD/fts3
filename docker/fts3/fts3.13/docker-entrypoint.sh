@@ -8,19 +8,19 @@ fi
 
 # Mounting the secrets that we have as files
 echo ">> Secrets and Configs Manipulation <<"
-cp /tmp/fts3-host-pems/hostcert.pem /etc/grid-security/
+cp /opt/fts3/fts3-host-pems/hostcert.pem /etc/grid-security/
 chmod 644 /etc/grid-security/hostcert.pem
 chown root:root /etc/grid-security/hostcert.pem
-cp /tmp/fts3-host-pems/hostkey.pem /etc/grid-security/
+cp /opt/fts3/fts3-host-pems/hostkey.pem /etc/grid-security/
 chmod 400 /etc/grid-security/hostkey.pem
 chown root:root /etc/grid-security/hostkey.pem
-#! HERE: Fail to copy (/tmp/fts3-configs/ca.crt does not exist...)
-# cp /tmp/fts3-configs/ca.crt /etc/grid-security/certificates/docker-entrypoint_ca.crt
-cp /tmp/fts3-configs/fts3config /etc/fts3/fts3config
-cp /tmp/fts3-configs/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
+#! HERE: Fail to copy (/opt/fts3/fts3-configs/ca.crt does not exist...)
+# cp /opt/fts3/fts3-configs/ca.crt /etc/grid-security/certificates/docker-entrypoint_ca.crt
+cp /opt/fts3/fts3-configs/fts3config /etc/fts3/fts3config
+cp /opt/fts3/fts3-configs/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
 #! HERE: Mount path /etc/fts3/fts3restconfig exists in PROD but not in dev... to be fixed
 #! Commented to avoid error in PROD 
-# cp /tmp/fts3-configs/fts3restconfig /etc/fts3/fts3restconfig
+# cp /opt/fts3/fts3-configs/fts3restconfig /etc/fts3/fts3restconfig
 chown root:apache /etc/fts3web/fts3web.ini
 chown -R fts3:fts3 /var/log/fts3rest
 
