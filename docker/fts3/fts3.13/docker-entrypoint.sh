@@ -14,13 +14,12 @@ chown root:root /etc/grid-security/hostcert.pem
 cp /opt/fts3/fts3-host-pems/hostkey.pem /etc/grid-security/
 chmod 400 /etc/grid-security/hostkey.pem
 chown root:root /etc/grid-security/hostkey.pem
-#! HERE: Fail to copy (/opt/fts3/fts3-configs/ca.crt does not exist...)
-# cp /opt/fts3/fts3-configs/ca.crt /etc/grid-security/certificates/docker-entrypoint_ca.crt
-cp /opt/fts3/fts3-configs/fts3config /etc/fts3/fts3config
-cp /opt/fts3/fts3-configs/fts-msg-monitoring.conf /etc/fts3/fts-msg-monitoring.conf
-#! HERE: Mount path /etc/fts3/fts3restconfig exists in PROD but not in dev... to be fixed
-#! Commented to avoid error in PROD 
-# cp /opt/fts3/fts3-configs/fts3restconfig /etc/fts3/fts3restconfig
+
+# Process configs using envsubst to keep configs public
+envsubst < /opt/fts3/fts3-configs/fts3config > /etc/fts3/fts3config
+envsubst < /opt/fts3/fts3-configs/fts3restconfig > /etc/fts3/fts3restconfig
+envsubst < /opt/fts3/fts3-configs/fts-msg-monitoring.conf > /etc/fts3/fts-msg-monitoring.conf
+
 chown root:apache /etc/fts3web/fts3web.ini
 chown -R fts3:fts3 /var/log/fts3rest
 

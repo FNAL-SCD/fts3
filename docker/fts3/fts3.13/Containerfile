@@ -22,7 +22,7 @@ RUN dnf clean all
 #> Install the FTS packages and dependencies
 RUN dnf install -y https://repo.opensciencegrid.org/osg/3.6/osg-3.6-el9-release-latest.rpm
 RUN dnf install -y gfal2-plugin-mock gfal2-all
-RUN dnf install -y cronie crontabs supervisor fetch-crl
+RUN dnf install -y gettext cronie crontabs supervisor fetch-crl
 RUN dnf install -y fts-server-${VERSION}
 RUN dnf install -y fts-rest-server-${VERSION}
 RUN dnf install -y fts-monitoring-${VERSION}
