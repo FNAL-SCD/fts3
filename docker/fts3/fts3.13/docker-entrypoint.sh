@@ -9,11 +9,18 @@ fi
 # Mounting the secrets that we have as files
 echo ">> Secrets and Configs Manipulation <<"
 cp /opt/fts3/fts3-host-pems/hostcert.pem /etc/grid-security/
+cp /opt/fts3/fts3-host-pems/hostcert.pem /etc/pki/tls/certs/localhost.crt
 chmod 644 /etc/grid-security/hostcert.pem
+chmod 644 /etc/pki/tls/certs/localhost.crt
 chown root:root /etc/grid-security/hostcert.pem
+chown root:root /etc/pki/tls/certs/localhost.crt
+
 cp /opt/fts3/fts3-host-pems/hostkey.pem /etc/grid-security/
+cp /opt/fts3/fts3-host-pems/hostkey.pem /etc/pki/tls/private/localhost.key
 chmod 400 /etc/grid-security/hostkey.pem
+chmod 400 /etc/pki/tls/private/localhost.key
 chown root:root /etc/grid-security/hostkey.pem
+chown root:root /etc/pki/tls/private/localhost.key
 
 # Process configs using envsubst to keep configs public
 envsubst < /opt/fts3/fts3-configs/fts3config > /etc/fts3/fts3config
@@ -41,9 +48,15 @@ else
    echo "${HOSTNAME} ${WEB_INTERFACE}" > /etc/fts3/host_aliases
 fi
 
+# Add a ServerName to the HTTPD configuration
+echo ">> Creating /etc/httpd/conf.d/fqdn.conf <<"
+echo "ServerName localhost" > /etc/httpd/conf.d/fqdn.conf
+
 #! HERE: Do we need to run again? It fails to execute but this is an init container process already (okd)
 # echo ">> START fetch-crl <<"
 # fetch-crl  
+
+sleep 1000000
 
 echo ">> START httpd <<"                                                      
 httpd
