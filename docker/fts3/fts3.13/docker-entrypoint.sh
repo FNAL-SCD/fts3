@@ -56,8 +56,6 @@ echo "ServerName localhost" > /etc/httpd/conf.d/fqdn.conf
 # echo ">> START fetch-crl <<"
 # fetch-crl  
 
-sleep 1000000
-
 echo ">> START httpd <<"                                                      
 httpd
 
