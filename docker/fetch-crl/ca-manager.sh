@@ -16,6 +16,9 @@ cacert_crl="/usr/sbin/fetch-crl -v"
 # base directory
 cacert_base=/etc/grid-security
 
+# Certificate copy destination
+outdir=/out/
+
 # creating the certificate directory
 printf ">> Checking ${cacert_base} to see if certificates exist\n"
 if [ ! -h "${cacert_base}/certificates" ]; then
@@ -61,5 +64,9 @@ if [ $? -ne 0 ]; then
   printf "\nCommand exited with a non zero status code\n"
 fi
 
+# Copy certificates to the mount directory
+cp $cacert_base/certificates/* $outdir
+
 # exit 0 in all cases
+printf "\nEnding ca-manager.sh execution.\n"
 exit 0
