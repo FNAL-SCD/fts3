@@ -23,7 +23,10 @@ if [ ! -h "${cacert_base}/certificates" ]; then
 
   # Initializing certificate directory and configuration
   $cacert_init
-  exit $?
+  if [ $? -ne 0 ]; then
+    printf "\nCommand exited with a non zero status code\n"
+    exit $?
+  fi
 fi
 
 # Setting up the right configuration for cloning
