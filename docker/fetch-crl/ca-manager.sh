@@ -65,7 +65,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Copy certificates to the mount directory
+printf "\n>> Copying certificates to /out/ \n"
 cp $cacert_base/certificates/* $outdir
+if [ $? -ne 0 ]; then
+  printf "\nCopying certs to destination failed.\n"
+fi
 
 # exit 0 in all cases
 printf "\nEnding ca-manager.sh execution.\n"
