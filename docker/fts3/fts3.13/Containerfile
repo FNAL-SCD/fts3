@@ -80,6 +80,12 @@ RUN echo "" >> /etc/httpd/conf/httpd.conf
 RUN echo "# Always append SAMEORIGIN" >> /etc/httpd/conf/httpd.conf
 RUN echo "Header always append X-Frame-Options SAMEORIGIN" >> /etc/httpd/conf/httpd.conf
 
+#> Hide Apache version and OS version
+RUN echo "" >> /etc/httpd/conf/httpd.conf
+RUN echo "# Hide Apache version and OS Version" >> /etc/httpd/conf/httpd.conf
+RUN echo "ServerTokens Prod" >> /etc/httpd/conf/httpd.conf
+RUN echo "ServerSignature Off" >> /etc/httpd/conf/httpd.conf
+
 #> Needed for pure k8s environment
 RUN chown fts3:root /var/log/fts3rest && chmod 644 /etc/fts3web/fts3web.ini
 
